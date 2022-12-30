@@ -13,3 +13,20 @@ tutorial/examples
 # Temporary exclude
 lamarck
 morphologies
+
+# LaTeX
+*.sav
+*.bak
+*.tmp
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.dvi
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.synctex(busy)
+
