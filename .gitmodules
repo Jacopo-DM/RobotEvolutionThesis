@@ -1,0 +1,6 @@
+[submodule "revolve"]
+	path = revolve
+	url = git@github.com:Jacopo-DM/revolve2.git
+[submodule "basics"]
+	path = basics
+	url = git@github.com:Jacopo-DM/Basics.git
