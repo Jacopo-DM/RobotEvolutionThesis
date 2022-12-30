@@ -4,6 +4,12 @@
 # Mac OS
 .DS_Store
 
+# Hidden notes
+_README.md
+
+# Duplicate `examples` folder
+tutorial/examples
+
 # Temporary exclude
 lamarck
 morphologies
