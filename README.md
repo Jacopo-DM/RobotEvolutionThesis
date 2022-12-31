@@ -5,7 +5,7 @@ To effectively clone this repo you likely need to run:
  
 * `git clone --recurse-submodules`
 
-This will download all the submodules as well; such as `revolve2` and `Basics`.
+This will download all the submodules as well; such as [`revolve2`](https://github.com/Jacopo-DM/revolve2) and [`Basics`](https://github.com/Jacopo-DM/Basics#basics).
 
 
 ## Directory Structure
