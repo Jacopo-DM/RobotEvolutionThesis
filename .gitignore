@@ -7,10 +7,14 @@
 # Hidden notes
 _README.md
 
+# Unlinked repos 
+ludobots
+
 # Duplicate `examples` folder
 tutorial/examples
 
 # Temporary exclude
+tutorial
 lamarck
 morphologies
 
