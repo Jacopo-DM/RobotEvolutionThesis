@@ -13,16 +13,14 @@ This will download all the submodules as well; such as [`revolve2`](https://gith
 ```
 .
 ├── LICENSE
-├── README.md
-├── basics
-├── lamarck
-├── morphologies
-└── revolve
+├── README.md               # This doc
+├── *basics*                # Helper functions (submodule)
+├── **lamarck**             # (ToDo)
+├── **morphologies**        # (ToDo)
+├── *revolve*               # Robot evolution toolkit (submodule)
+└── thesis                  # LaTeX files
 ```
 
-# README.md
-
-This document.
 ## Basics 
 
 Git submodule from: [Jacopo-DM/Basics](https://github.com/Jacopo-DM/Basics)
