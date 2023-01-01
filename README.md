@@ -14,10 +14,10 @@ This will download all the submodules as well; such as [`revolve2`](https://gith
 .
 ├── LICENSE
 ├── README.md               # This doc
-├── *basics*                # Helper functions (submodule)
-├── **lamarck**             # (ToDo)
-├── **morphologies**        # (ToDo)
-├── *revolve*               # Robot evolution toolkit (submodule)
+├── basics                  # Helper functions (submodule)
+├── lamarck                 # (ToDo)
+├── morphologies            # (ToDo)
+├── revolve                 # Robot evolution toolkit (submodule)
 └── thesis                  # LaTeX files
 ```
 
