@@ -13,7 +13,7 @@ This will download all the submodules as well; such as [`revolve2`](https://gith
 ```
 .
 ├── LICENSE
-├── README.md               # This doc
+├── README.md               # This document
 ├── basics                  # Helper functions (submodule)
 ├── lamarck                 # (ToDo)
 ├── morphologies            # (ToDo)
