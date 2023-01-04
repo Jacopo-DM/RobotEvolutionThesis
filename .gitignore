@@ -34,3 +34,5 @@ morphologies
 *.synctex.gz
 *.synctex(busy)
 
+# DrawIO
+*.bkp
