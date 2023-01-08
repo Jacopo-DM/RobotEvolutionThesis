@@ -70,6 +70,41 @@ To check that the installation was successful you can run the following command 
 
 If this command runs without error then the installation was successful.
 
+### SQLAlchemy & MyPy
+
+If you're using `mypy` and/or `visual studio code` you may need to install `sqlalchemy-stubs` to avoid errors.
+
+To do this run the following command in the terminal:
+
+```
+pip install -U sqlalchemy-stubs
+```
+
+Enable `sqlalchemy-stubs` by adding the following to your `mypy.ini` file:
+
+```
+[mypy]
+plugins = sqlmypy
+```
+
+([ref.](https://github.com/dropbox/sqlalchemy-stubs)])
+
+
+## Running The Optimization Algorithms
+
+### Plotting 
+
+```
+pip install fire
+python plot.py ./database simpleopt
+```
+
+#### Visual Studio Code Errors
+
+```
+pip install pandas-stubs==1.2.0.62
+```
+
 ## Lamarck 
 
 TO FILL IN
