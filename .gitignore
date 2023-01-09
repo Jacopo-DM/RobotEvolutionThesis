@@ -17,6 +17,8 @@ tutorial/examples
 tutorial
 lamarck
 morphologies
+revdev
+bo
 
 # LaTeX
 *.sav
@@ -38,7 +40,9 @@ morphologies
 *.bkp
 000_all.drawio
 000_er_overview.drawio
-# 001_ea_base.drawio
-# 001_revolve2_flowchart.drawio
-# 001_revolve2_simple.drawio
 002_ludobots.drawio
+
+# Misc pictures
+*.png
+*.jpg
+*.jpeg

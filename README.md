@@ -5,60 +5,96 @@ To effectively clone this repo you likely need to run:
  
 * `git clone --recurse-submodules`
 
-This will download all the submodules as well; such as [`revolve2`](https://github.com/Jacopo-DM/revolve2) and [`Basics`](https://github.com/Jacopo-DM/Basics#basics).
+This will download all the submodules as well; such as [`revolve2`](https://github.com/Jacopo-DM/revolve2) and [`Basics`](https://github.com/Jacopo-DM/Basics/tree/revolve2).
 
 
 ## Directory Structure
 
 ```
 .
-├── LICENSE
-├── README.md               # This document
-├── basics                  # Helper functions (submodule)
-├── charts                  # DrawIO diagrams
-├── lamarck                 # (ToDo)
-├── morphologies            # (ToDo)
-├── revolve                 # Robot evolution toolkit (submodule)
-└── thesis                  # LaTeX files
+├── README.md           # This document
+├── basics              # Helper functions
+├── charts              # DrawIO diagrams
+├── exp                 # Experiments
+│   ├── bo              # (ADD)
+│   ├── lamarck         # (ADD)
+│   ├── morphologies    # (ADD)
+│   └── revdev          # (ADD)
+├── revolve             # Robot evolution toolkit (submodule)
+└── thesis              # LaTeX files
+    ├── bibs            # Bibliography files
+    └── docs            # LaTeX files
+
 ```
 
-## Basics 
 
-Git submodule from: [Jacopo-DM/Basics](https://github.com/Jacopo-DM/Basics)
+## `./basics`
+
+Git submodule from: [Jacopo-DM/Basics](https://github.com/Jacopo-DM/Basics/tree/revolve2).
 
 This directory contains various basic helper scripts and templates the author uses in his projects.
 
-## Revolve
+## `./exp`
+
+This directory contains various experiments and developed code for the thesis.
+
+## `./revolve`
 
 Git submodule from: [Jacopo-DM/revolve2](https://github.com/Jacopo-DM/revolve2), which is a fork of [revolve2](https://github.com/ci-group/revolve2).
 
 This is used to install `Revolve 2` in editable mode.
 
-### Python Environment Setup
+## `./thesis`
 
-Instructions on how the author set up his (mini)conda environment can be found in [`basics/shell/env.sh`](https://github.com/Jacopo-DM/Basics/blob/main/shell/env.sh). 
+This directory contains the LaTeX files for the thesis.
 
-Note this was done on a M1 Mac. 
+--- 
 
-### Mac Pre-requisites
+## Python Environment Setup
 
-* Install [`Xcode`](https://developer.apple.com/xcode/) from the App Store or `Xcode Command Line Tools` by running `xcode-select --install` in a terminal 
+Instructions on how the author set up his (mini)conda environment can be found in [`basics/shell/env.sh`](https://github.com/Jacopo-DM/Basics/blob/revolve2/utils/env.sh). 
 
-* Install [`Homebrew`](https://brew.sh/) by running `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` in a terminal
+
+Below you can see a copy of those instructions.
+```
+CONDA_SUBDIR=osx-arm64 conda create -n ENV_NAME
+conda activate ENV_NAME
+conda env config vars set CONDA_SUBDIR=osx-arm64
+conda deactivate
+conda activate ENV_NAME
+```
+
+Note this was done on a M1 Mac using the [miniforge](https://github.com/conda-forge/miniforge) distribution of `conda`.
+
+### Mac Prerequisites
+
+* Install [Xcode](https://developer.apple.com/xcode/) from the App Store or `Xcode Command Line Tools` by running `xcode-select --install` in a terminal.
+
+* Install [Homebrew](https://brew.sh/) by running in a terminal:
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
 
 Using `Homebrew` install `cereal` by running the following command in a terminal:
 
-* `brew install cereal`
+```
+brew install cereal
+```
 
 ### Installing Revolve 2
 
 First you must run the following command in the terminal:
 
-* `export CPATH=/opt/homebrew/include`
+```
+export CPATH=/opt/homebrew/include
+```
   
 Then you can install the development version of revolve2 by running the following command in the terminal:
 
-* `revolve/dev_requirements.sh` 
+```
+revolve/dev_requirements.sh
+``` 
   
 This version of `dev_requirements` was edited from original `revolve2/dev_requirements.sh` to exclude `isaacgym`. 
 
@@ -66,13 +102,50 @@ This version of `dev_requirements` was edited from original `revolve2/dev_requir
 
 To check that the installation was successful you can run the following command in the terminal:
 
-* `python -c "import revolve`
+```
+cd path/to/root/of/this/repo
+python -c "import revolve"
+```
 
-If this command runs without error then the installation was successful.
+If this command runs without error then the installation was (likely) successful.
 
-### SQLAlchemy & MyPy
+---
 
-If you're using `mypy` and/or `visual studio code` you may need to install `sqlalchemy-stubs` to avoid errors.
+## Misc Prerequisites
+
+## MyPy
+
+To use `mypy` you must install the following packages:
+
+```
+pip install mypy
+```
+
+## Visualize
+
+
+### Data Manipulation: `pandas` & `matplotlib`
+
+```
+pip install matplotlib pandas greenlet
+```
+
+#### `Plot.py` & `Fire`
+
+The `plot.py` script uses [Fire](https://github.com/google/python-fire) to parse command line arguments, to plot the results of the optimization.
+
+To install `Fire` run the following command in the terminal:
+
+```
+pip install fire
+```
+
+### Stubs, MyPy, & Visual Studio Code
+
+
+#### SQLAlchemy
+
+If you're using [mypy](https://mypy-lang.org/) and/or [visual studio code](https://code.visualstudio.com/) you may need to install `sqlalchemy-stubs` to avoid errors.
 
 To do this run the following command in the terminal:
 
@@ -87,27 +160,65 @@ Enable `sqlalchemy-stubs` by adding the following to your `mypy.ini` file:
 plugins = sqlmypy
 ```
 
-([ref.](https://github.com/dropbox/sqlalchemy-stubs)])
+[[sqlalchemy-stubs ref.](https://github.com/dropbox/sqlalchemy-stubs)]
 
+#### Pandas
+
+Similarly, if you're using `visual studio code` you may need to install `pandas-stubs` to avoid errors.
+
+```
+pip install pandas-stubs
+pip install pandas-stubs==1.2.0.62 
+```
+
+[[pandas-stubs ref.](https://github.com/VirtusLab/pandas-stubs)]
+
+---
 
 ## Running The Optimization Algorithms
 
+### Check Install
+
+```
+runner.sh
+```
+
+### Run Optimization
+
+```
+python main.py
+```
+
 ### Plotting 
 
-```
-pip install fire
-python plot.py ./database simpleopt
-```
-
-#### Visual Studio Code Errors
 
 ```
-pip install pandas-stubs==1.2.0.62
+python plot.py ./database opt
 ```
+
+---
+
+## Export Your Requirements
+
+```
+pip install pipreqs
+pipreqs --force .
+```
+
+---
 
 ## Lamarck 
 
-TO FILL IN
+ADD
+
+## RevDev
+
+ADD
+
+## BO
+
+ADD
+
 ## Morphology
 
-TO FILL IN
+ADD
