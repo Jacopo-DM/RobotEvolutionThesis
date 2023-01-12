@@ -8,8 +8,7 @@ Hardware:   M1 chip
 
 This code is provided "As Is"
 
-- ./runner.sh: check install (note this will probably throw errors)
-- python main.py --n_gen=NUM_OF_GEN: run the optimization
+- python main.py : run the optimization
 - python plot.py ./database simpleopt: plot the results (saved locally)
 - python run_best.py: run the best individual
 - python plot_learning.py ./extra/database openaies

@@ -8,13 +8,15 @@ __pycache__
 # Mac OS
 .DS_Store
 
-# Hidden notes
+# Hidden files
 NOTES.md
+basics
 
 # Unlinked repos 
 ludobots
 
 # Temporary exclude
+lamarck_ld
 morphologies
 revdev
 bo
@@ -37,9 +39,8 @@ bo
 
 # DrawIO
 *.bkp
-000_all.drawio
-000_er_overview.drawio
-002_ludobots.drawio
+charts/ideas
+charts/ludobots
 
 # Misc pictures
 *.png
