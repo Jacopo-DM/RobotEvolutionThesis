@@ -12,31 +12,41 @@ This will download all the submodules as well; such as [`revolve2`](https://gith
 
 ```
 .
-├── README.md           # This document
-├── basics              # Helper functions
-├── charts              # DrawIO diagrams
-├── exp                 # Experiments
-│   ├── bo              # (ADD)
-│   ├── lamarck         # (ADD)
-│   ├── morphologies    # (ADD)
-│   └── revdev          # (ADD)
-├── revolve             # Robot evolution toolkit (submodule)
-└── thesis              # LaTeX files
-    ├── bibs            # Bibliography files
-    └── docs            # LaTeX files
-
+├── README.md                         # This document
+├── basics                            # See ./basics/README for more information (detached)
+│   ├── README.md 
+│   └── ...                           # (other files)
+├── charts                            # See ./charts/README for more information
+│   ├── README.md 
+│   └── ...                           # (other files)
+├── exp                               # Experiments with Revolve 2
+│   ├── bo                            # (Uncommited)
+│   ├── lamarck                       # Lamarckian controller evolution
+│   ├── morphologies                  # (Uncommited)
+│   ├── revdev                        # (Uncommited)
+│   └── tutorial                      # Various tutorials for Revolve 2 (with graphics)
+├── revolve                           # JMDM version of Revolve 2 (submodule)
+│   ├── README.md
+│   └── ...                           # (other files) 
+└── thesis                            # Files for the thesis
+    ├── bibs                          # Bibliography files
+    └── docs                          # LaTeX file
 ```
 
 
 ## `./basics`
 
-Git submodule from: [Jacopo-DM/Basics](https://github.com/Jacopo-DM/Basics/tree/revolve2).
+Detached (not submodule) copy of the [Jacopo-DM/Basics](https://github.com/Jacopo-DM/Basics) repo.
 
 This directory contains various basic helper scripts and templates the author uses in his projects.
 
+## `./charts`
+
+This directory contains various charts and graphs used in the thesis and to visualize Revolve 2 workflow (using the [DrawIO desktop app](https://www.diagrams.net/blog/move-diagrams-net)).
+
 ## `./exp`
 
-This directory contains various experiments and developed code for the thesis.
+This directory contains various experiments and the developed code for the thesis.
 
 ## `./revolve`
 
@@ -66,15 +76,12 @@ conda activate ENV_NAME
 
 Note this was done on a M1 Mac using the [miniforge](https://github.com/conda-forge/miniforge) distribution of `conda`.
 
+## Revolve 2
+
 ### Mac Prerequisites
 
 * Install [Xcode](https://developer.apple.com/xcode/) from the App Store or `Xcode Command Line Tools` by running `xcode-select --install` in a terminal.
-
-* Install [Homebrew](https://brew.sh/) by running in a terminal:
-
-```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
+* Install [Homebrew](https://brew.sh/).
 
 Using `Homebrew` install `cereal` by running the following command in a terminal:
 
@@ -111,26 +118,18 @@ If this command runs without error then the installation was (likely) successful
 
 ---
 
-## Misc Prerequisites
+## Other Prerequisites
 
-## MyPy
-
-To use `mypy` you must install the following packages:
-
-```
-pip install mypy
-```
-
-## Visualize
+### Visualize
 
 
-### Data Manipulation: `pandas` & `matplotlib`
+#### Data Manipulation: `pandas` & `matplotlib`
 
 ```
 pip install matplotlib pandas greenlet
 ```
 
-#### `Plot.py` & `Fire`
+#### Plotting: `Plot.py` & `Fire`
 
 The `plot.py` script uses [Fire](https://github.com/google/python-fire) to parse command line arguments, to plot the results of the optimization.
 
@@ -140,8 +139,17 @@ To install `Fire` run the following command in the terminal:
 pip install fire
 ```
 
-### Stubs, MyPy, & Visual Studio Code
+### MyPy
 
+To use `mypy` you must install the following packages:
+
+```
+pip install mypy
+```
+
+### MyPy Stubs & Visual Studio Code Errors
+
+To minimise the number of error that `mypy` and `visual studio code` throw you may need to install some stubs.
 
 #### SQLAlchemy
 
@@ -160,7 +168,7 @@ Enable `sqlalchemy-stubs` by adding the following to your `mypy.ini` file:
 plugins = sqlmypy
 ```
 
-[[sqlalchemy-stubs ref.](https://github.com/dropbox/sqlalchemy-stubs)]
+[[ref. sqlalchemy-stubs](https://github.com/dropbox/sqlalchemy-stubs)]
 
 #### Pandas
 
@@ -171,7 +179,7 @@ pip install pandas-stubs
 pip install pandas-stubs==1.2.0.62 
 ```
 
-[[pandas-stubs ref.](https://github.com/VirtusLab/pandas-stubs)]
+[[ref. pandas-stubs](https://github.com/VirtusLab/pandas-stubs)]
 
 ---
 
