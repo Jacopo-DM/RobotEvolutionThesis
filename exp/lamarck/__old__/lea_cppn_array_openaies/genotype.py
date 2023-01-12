@@ -3,11 +3,12 @@ from random import Random
 from typing import List
 
 import multineat
-import numpy as np
-import numpy.typing as npt
 import sqlalchemy
+from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.future import select
+
 from revolve2.core.database import IncompatibleError, Serializer
-from revolve2.core.database.serializers import DbNdarray1xn, Ndarray1xnSerializer
 from revolve2.core.modular_robot import ModularRobot
 from revolve2.genotypes.cppnwin import Genotype as CppnwinGenotype
 from revolve2.genotypes.cppnwin import GenotypeSerializer as CppnwinGenotypeSerializer
@@ -18,18 +19,18 @@ from revolve2.genotypes.cppnwin.modular_robot.body_genotype_v1 import (
 from revolve2.genotypes.cppnwin.modular_robot.body_genotype_v1 import (
     random_v1 as body_random,
 )
-from sqlalchemy.ext.asyncio.session import AsyncSession
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.future import select
-
-from ..array_genotype.array_genotype import ArrayGenotype, ArrayGenotypeSerializer
-from ..array_genotype.array_genotype import random_v1 as random_array_genotype
-from ..array_genotype.array_genotype_crossover import crossover as crossover_v2
-from ..array_genotype.array_genotype_mutation import mutate as mutate_v2
-from ..array_genotype.genotype_schema import DbArrayGenotype, DbArrayGenotypeItem
-
 # from revolve2.genotypes.cppnwin.modular_robot.brain_genotype_cpg_v1 import (
 #     develop_v1 as brain_develop,
+
+import numpy as np
+import numpy.typing as npt
+from revolve2.core.database.serializers import DbNdarray1xn, Ndarray1xnSerializer
+from jlo.array_genotype.array_genotype import ArrayGenotype, ArrayGenotypeSerializer, random_v1 as random_array_genotype
+from jlo.array_genotype.genotype_schema import DbArrayGenotype, DbArrayGenotypeItem
+from jlo.array_genotype.array_genotype_crossover import crossover as crossover_v2
+from jlo.array_genotype.array_genotype_mutation import mutate as mutate_v2
+
+
 
 
 def _make_multineat_params() -> multineat.Parameters:
@@ -81,7 +82,6 @@ _MULTINEAT_PARAMS = _make_multineat_params()
 class Genotype:
     body: CppnwinGenotype
     brain: ArrayGenotype
-
 
 class GenotypeSerializer(Serializer[Genotype]):
     @classmethod
@@ -155,7 +155,7 @@ def random(
     # innov_db_brain: multineat.InnovationDatabase,
     rng: Random,
     num_initial_mutations: int,
-    robot_grid_size: int,
+    robot_grid_size: int
 ) -> Genotype:
     multineat_rng = _multineat_rng_from_random(rng)
 
@@ -175,7 +175,7 @@ def random(
     #     num_initial_mutations,
     # )
 
-    brain = random_array_genotype(robot_grid_size**2, rng)
+    brain = random_array_genotype(robot_grid_size ** 2, rng)
 
     return Genotype(body, brain)
 
@@ -193,7 +193,6 @@ def mutate(
         mutate_v2(genotype.brain, 0, 0.5, 0.8),
     )
 
-
 def crossover(
     parent1: Genotype,
     parent2: Genotype,
@@ -210,7 +209,12 @@ def crossover(
             False,
             False,
         ),
-        crossover_v2(parent1.brain, parent2.brain, rng, 0.5),
+        crossover_v2(
+            parent1.brain,
+            parent2.brain,
+            rng,
+            0.5
+        ),
     )
 
 
@@ -221,7 +225,6 @@ def _multineat_rng_from_random(rng: Random) -> multineat.RNG:
 
 
 DbBase = declarative_base()
-
 
 class DbGenotype(DbBase):
     __tablename__ = "genotype"

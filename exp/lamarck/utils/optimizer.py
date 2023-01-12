@@ -310,6 +310,7 @@ class Optimizer(EAOptimizer[Genotype, FITNESS_TYPE]):
         for idx, __ in enumerate(genotypes):
             new_brain = await self._learning_period(
                 genotypes[idx],
+                _db_id=str(self.generation_index),
                 database=database,
                 population_size=population_size,
                 sigma=sigma,
@@ -360,6 +361,7 @@ class Optimizer(EAOptimizer[Genotype, FITNESS_TYPE]):
     async def _learning_period(
         self,
         genotype: Genotype,
+        _db_id: str,
         database: AsyncEngine,
         population_size: int,
         sigma: float,
@@ -399,7 +401,7 @@ class Optimizer(EAOptimizer[Genotype, FITNESS_TYPE]):
         """
 
         # unique database identifier for optimizer
-        db_id = DbId.root("openaies")
+        db_id = DbId.root(f"openaies{_db_id}")
 
         robot = develop(genotype)
         body = robot.body
@@ -454,9 +456,9 @@ class Optimizer(EAOptimizer[Genotype, FITNESS_TYPE]):
             best_individual = (
                 (
                     await session.execute(
-                        select(DbOpenaiESOptimizerIndividual).order_by(
-                            DbOpenaiESOptimizerIndividual.fitness.desc()
-                        )
+                        select(DbOpenaiESOptimizerIndividual)
+                        .filter(DbOpenaiESOptimizerIndividual.db_id == db_id)
+                        .order_by(DbOpenaiESOptimizerIndividual.fitness.desc())
                     )
                 )
                 .scalars()

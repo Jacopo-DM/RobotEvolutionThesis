@@ -6,18 +6,21 @@ from typing import List, Tuple
 
 import multineat
 import numpy as np
-import numpy.typing as npt
-import revolve2.core.optimization.ea.generic_ea.population_management as population_management
-import revolve2.core.optimization.ea.generic_ea.selection as selection
 import sqlalchemy
-from ESoptimizer import ESOptimizer
 from genotype import Genotype, GenotypeSerializer, crossover, mutate
 from pyrr import Quaternion, Vector3
+from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.future import select
+
+import revolve2.core.optimization.ea.generic_ea.population_management as population_management
+import revolve2.core.optimization.ea.generic_ea.selection as selection
+from jlo.array_genotype.genotype_schema import DbArrayGenotype, DbArrayGenotypeItem
+from jlo.array_genotype.array_genotype import ArrayGenotypeSerializer, ArrayGenotype
 from revolve2.actor_controller import ActorController
-from revolve2.actor_controllers.cpg import CpgIndex, CpgNetworkStructure
 from revolve2.core.database import IncompatibleError
 from revolve2.core.database.serializers import FloatSerializer
-from revolve2.core.modular_robot import Body, ModularRobot
 from revolve2.core.modular_robot.brains import BrainCpgNetworkStatic
 from revolve2.core.optimization import ProcessIdGen
 from revolve2.core.optimization.ea.generic_ea import EAOptimizer
@@ -29,18 +32,15 @@ from revolve2.core.physics.running import (
     PosedActor,
     Runner,
 )
-from revolve2.genotypes.cppnwin import Genotype as CppnwinGenotype
+from revolve2.runners.isaacgym import LocalRunner
 from revolve2.genotypes.cppnwin.modular_robot.body_genotype_v1 import (
     develop_v1 as body_develop,
 )
-from revolve2.runners.isaacgym import LocalRunner
-from sqlalchemy.ext.asyncio import AsyncEngine
-from sqlalchemy.ext.asyncio.session import AsyncSession
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.future import select
-
-from ..array_genotype.array_genotype import ArrayGenotype, ArrayGenotypeSerializer
-from ..array_genotype.genotype_schema import DbArrayGenotype, DbArrayGenotypeItem
+from revolve2.core.modular_robot import ModularRobot, Body
+from revolve2.actor_controllers.cpg import CpgNetworkStructure, CpgIndex
+from ESoptimizer import ESOptimizer
+import numpy.typing as npt
+from revolve2.genotypes.cppnwin import Genotype as CppnwinGenotype
 
 
 class Optimizer(EAOptimizer[Genotype, float]):
@@ -62,21 +62,21 @@ class Optimizer(EAOptimizer[Genotype, float]):
     _num_generations: int
 
     async def ainit_new(
-        # type: ignore # TODO for now ignoring mypy complaint about LSP problem, override parent's ainit
-        self,
-        database: AsyncEngine,
-        session: AsyncSession,
-        process_id: int,
-        process_id_gen: ProcessIdGen,
-        initial_population: List[Genotype],
-        rng: Random,
-        innov_db_body: multineat.InnovationDatabase,
-        # innov_db_brain: multineat.InnovationDatabase,
-        simulation_time: int,
-        sampling_frequency: float,
-        control_frequency: float,
-        num_generations: int,
-        offspring_size: int,
+            # type: ignore # TODO for now ignoring mypy complaint about LSP problem, override parent's ainit
+            self,
+            database: AsyncEngine,
+            session: AsyncSession,
+            process_id: int,
+            process_id_gen: ProcessIdGen,
+            initial_population: List[Genotype],
+            rng: Random,
+            innov_db_body: multineat.InnovationDatabase,
+            # innov_db_brain: multineat.InnovationDatabase,
+            simulation_time: int,
+            sampling_frequency: float,
+            control_frequency: float,
+            num_generations: int,
+            offspring_size: int,
     ) -> None:
         await super().ainit_new(
             database=database,
@@ -109,24 +109,24 @@ class Optimizer(EAOptimizer[Genotype, float]):
         self._on_generation_checkpoint(session)
 
     async def ainit_from_database(  # type: ignore # see comment at ainit_new
-        self,
-        database: AsyncEngine,
-        session: AsyncSession,
-        process_id: int,
-        process_id_gen: ProcessIdGen,
-        rng: Random,
-        innov_db_body: multineat.InnovationDatabase,
-        # innov_db_brain: multineat.InnovationDatabase,
+            self,
+            database: AsyncEngine,
+            session: AsyncSession,
+            process_id: int,
+            process_id_gen: ProcessIdGen,
+            rng: Random,
+            innov_db_body: multineat.InnovationDatabase,
+            # innov_db_brain: multineat.InnovationDatabase,
     ) -> bool:
         if not await super().ainit_from_database(
-            database=database,
-            session=session,
-            process_id=process_id,
-            process_id_gen=process_id_gen,
-            genotype_type=Genotype,
-            genotype_serializer=GenotypeSerializer,
-            fitness_type=float,
-            fitness_serializer=FloatSerializer,
+                database=database,
+                session=session,
+                process_id=process_id,
+                process_id_gen=process_id_gen,
+                genotype_type=Genotype,
+                genotype_serializer=GenotypeSerializer,
+                fitness_type=float,
+                fitness_serializer=FloatSerializer,
         ):
             return False
 
@@ -165,15 +165,13 @@ class Optimizer(EAOptimizer[Genotype, float]):
         return True
 
     def _init_runner(self) -> None:
-        self._runner = LocalRunner(
-            LocalRunner.SimParams(), headless=True
-        )  # TURN OFF SIMULATOR ->True
+        self._runner = LocalRunner(LocalRunner.SimParams(), headless=True)  # TURN OFF SIMULATOR ->True
 
     def _select_parents(
-        self,
-        population: List[Genotype],
-        fitnesses: List[float],
-        num_parent_groups: int,
+            self,
+            population: List[Genotype],
+            fitnesses: List[float],
+            num_parent_groups: int,
     ) -> List[List[int]]:
         return [
             selection.multiple_unique(
@@ -186,12 +184,12 @@ class Optimizer(EAOptimizer[Genotype, float]):
         ]
 
     def _select_survivors(
-        self,
-        old_individuals: List[Genotype],
-        old_fitnesses: List[float],
-        new_individuals: List[Genotype],
-        new_fitnesses: List[float],
-        num_survivors: int,
+            self,
+            old_individuals: List[Genotype],
+            old_fitnesses: List[float],
+            new_individuals: List[Genotype],
+            new_fitnesses: List[float],
+            num_survivors: int,
     ) -> Tuple[List[int], List[int]]:
         assert len(old_individuals) == num_survivors
 
@@ -214,11 +212,11 @@ class Optimizer(EAOptimizer[Genotype, float]):
         return mutate(genotype, self._innov_db_body, self._rng)
 
     async def _evaluate_generation(
-        self,
-        genotypes: List[Genotype],
-        database: AsyncEngine,
-        process_id: int,
-        process_id_gen: ProcessIdGen,
+            self,
+            genotypes: List[Genotype],
+            database: AsyncEngine,
+            process_id: int,
+            process_id_gen: ProcessIdGen,
     ) -> List[float]:
         NUM_GENERATIONS = 5
         POPULATION_SIZE = 20
@@ -228,7 +226,9 @@ class Optimizer(EAOptimizer[Genotype, float]):
 
         body_genotypes = [genotype.body for genotype in genotypes]
         brain_genotypes = [genotype.brain.genotype for genotype in genotypes]
-        before = await self._get_robot_fitnesses(body_genotypes, brain_genotypes)
+        before = await self._get_robot_fitnesses(
+            body_genotypes, brain_genotypes
+        )
 
         learned_brain_genotypes: List[npt.NDArray[np.float_]] = []
         for body_genotype, brain_genotype in zip(body_genotypes, brain_genotypes):
@@ -237,11 +237,7 @@ class Optimizer(EAOptimizer[Genotype, float]):
             params = []
             for hinge in hinges:
                 pos = body.grid_position(hinge)
-                params.append(
-                    brain_genotype[
-                        int(pos[0] + pos[1] * grid_size + grid_size**2 / 2)
-                    ]
-                )
+                params.append(brain_genotype[int(pos[0] + pos[1] * grid_size + grid_size ** 2 / 2)])
 
             cpg_structure = self._make_cpg_structure(body)
 
@@ -288,9 +284,7 @@ class Optimizer(EAOptimizer[Genotype, float]):
 
             for hinge, learned_weight in zip(hinges, learned_weights):
                 pos = body.grid_position(hinge)
-                improved_genotype[
-                    int(pos[0] + pos[1] * grid_size + grid_size**2 / 2)
-                ] = learned_weight
+                improved_genotype[int(pos[0] + pos[1] * grid_size + grid_size ** 2 / 2)] = learned_weight
 
             learned_brain_genotypes.append(improved_genotype)
 
@@ -298,33 +292,28 @@ class Optimizer(EAOptimizer[Genotype, float]):
 
         async with AsyncSession(database) as session:
             async with session.begin():
-                dbbrain_before_ids = await ArrayGenotypeSerializer.to_database(
-                    session, [ArrayGenotype(params) for params in brain_genotypes]
-                )
-                dbbrain_after_ids = await ArrayGenotypeSerializer.to_database(
-                    session,
-                    [ArrayGenotype(params) for params in learned_brain_genotypes],
-                )
-                dbindividuals = [
-                    DbBigLoopIndividual(
-                        process_id=self._process_id,
-                        gen_num=self.generation_index,
-                        gen_index=i,
-                        brain_before=brain_before_id,
-                        brain_after=brain_after_id,
-                        before_fitness=before_fitness,
-                        after_fitness=after_fitness,
-                    )
-                    for i, (
-                        brain_before_id,
-                        brain_after_id,
-                        before_fitness,
-                        after_fitness,
-                    ) in enumerate(
-                        zip(dbbrain_before_ids, dbbrain_after_ids, before, after)
-                    )
-                ]
-
+                dbbrain_before_ids = await ArrayGenotypeSerializer.to_database(session,
+                                                                               [ArrayGenotype(params) for params in
+                                                                                brain_genotypes])
+                dbbrain_after_ids = await ArrayGenotypeSerializer.to_database(session,
+                                                                              [ArrayGenotype(params) for params in
+                                                                               learned_brain_genotypes])
+                dbindividuals = [DbBigLoopIndividual(
+                    process_id=self._process_id,
+                    gen_num=self.generation_index,
+                    gen_index=i,
+                    brain_before=brain_before_id,
+                    brain_after=brain_after_id,
+                    before_fitness=before_fitness,
+                    after_fitness=after_fitness)
+                    for i,
+                        (brain_before_id,
+                         brain_after_id,
+                         before_fitness,
+                         after_fitness) in enumerate(zip(dbbrain_before_ids,
+                                                         dbbrain_after_ids,
+                                                         before, after))]
+                
                 session.add_all(dbindividuals)
 
         return after
@@ -336,9 +325,9 @@ class Optimizer(EAOptimizer[Genotype, float]):
         return cpg_structure
 
     async def _get_robot_fitnesses(
-        self,
-        body_genotypes: List[CppnwinGenotype],
-        brain_genotypes: List[npt.NDArray[np.float_]],
+            self,
+            body_genotypes: List[CppnwinGenotype],
+            brain_genotypes: List[npt.NDArray[np.float_]],
     ) -> List[float]:
         grid_size = 22
 
@@ -353,8 +342,6 @@ class Optimizer(EAOptimizer[Genotype, float]):
 
         for body_genotype, brain_weights in zip(body_genotypes, brain_genotypes):
             body = body_develop(body_genotype)
-
-            # ==================== START OF BRAIN ==================== #
             param_grid = brain_weights
 
             hinges = body.find_active_hinges()
@@ -363,21 +350,21 @@ class Optimizer(EAOptimizer[Genotype, float]):
             params = []
             for hinge in hinges:
                 pos = body.grid_position(hinge)
-                params.append(
-                    param_grid[int(pos[0] + pos[1] * grid_size + grid_size**2 / 2)]
-                )
+                params.append(param_grid[int(pos[0] + pos[1] * grid_size + grid_size ** 2 / 2)])
 
-            initial_state = cpg_structure.make_uniform_state(0.5 * math.pi / 2.0)
-            weight_matrix = cpg_structure.make_weight_matrix_from_params(params)
+            initial_state = cpg_structure.make_uniform_state(
+                0.5 * math.pi / 2.0
+            )
+            weight_matrix = cpg_structure.make_weight_matrix_from_params(
+                params
+            )
             dof_ranges = cpg_structure.make_uniform_dof_ranges(1.0)
-
             brain = BrainCpgNetworkStatic(
                 initial_state,
                 cpg_structure.num_cpgs,
                 weight_matrix,
                 dof_ranges,
             )
-            # ==================== END OF BRAIN ==================== #
 
             robot = ModularRobot(body, brain)
 
@@ -396,7 +383,7 @@ class Optimizer(EAOptimizer[Genotype, float]):
                         ]
                     ),
                     Quaternion(),
-                    [0.0 for _ in controller.get_dof_targets()],
+                    [0.0 for _ in controller.get_dof_targets()]
                 )
             )
             batch.environments.append(env)
@@ -455,37 +442,16 @@ class DbOptimizerState(DbBase):
         nullable=False,
         primary_key=True,
     )
-
     generation_index = sqlalchemy.Column(
         sqlalchemy.Integer, nullable=False, primary_key=True
     )
     rng = sqlalchemy.Column(sqlalchemy.PickleType, nullable=False)
-    num_generations = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
-
     innov_db_body = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     # innov_db_brain = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     simulation_time = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     sampling_frequency = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
     control_frequency = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
-
-
-class DbBigLoopIndividual(DbBase):
-    __tablename__ = "big_loop_individual"
-
-    process_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, primary_key=True)
-    gen_num = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, primary_key=True)
-    gen_index = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, primary_key=True)
-    brain_before = sqlalchemy.Column(
-        sqlalchemy.Integer, sqlalchemy.ForeignKey(DbArrayGenotype.id), nullable=False
-    )
-    brain_after = sqlalchemy.Column(
-        sqlalchemy.Integer, sqlalchemy.ForeignKey(DbArrayGenotype.id), nullable=False
-    )
-    # brain_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey(DbArrayGenotype.id), nullable=False)
-    # brain_before_geno = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
-    # brain_after_geno = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
-    before_fitness = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
-    after_fitness = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    num_generations = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
 
 
 # class DbOpenaiESOptimizer(DbBase):
@@ -504,7 +470,8 @@ class DbBigLoopIndividual(DbBase):
 #         sqlalchemy.Integer, sqlalchemy.ForeignKey(DbNdarray1xn.id), nullable=False
 #     )
 #     initial_rng = sqlalchemy.Column(sqlalchemy.PickleType, nullable=False)
-
+#
+#
 # class DbOpenaiESOptimizerState(DbBase):
 #     __tablename__ = "openaies_optimizer_state"
 #
@@ -514,3 +481,22 @@ class DbBigLoopIndividual(DbBase):
 #         sqlalchemy.Integer, sqlalchemy.ForeignKey(DbNdarray1xn.id), nullable=False
 #     )
 #     rng = sqlalchemy.Column(sqlalchemy.PickleType, nullable=False)
+#
+#
+class DbBigLoopIndividual(DbBase):
+    __tablename__ = "big_loop_individual"
+
+    process_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, primary_key=True)
+    gen_num = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, primary_key=True)
+    gen_index = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, primary_key=True)
+    brain_before = sqlalchemy.Column(
+        sqlalchemy.Integer, sqlalchemy.ForeignKey(DbArrayGenotype.id), nullable=False
+    )
+    brain_after = sqlalchemy.Column(
+        sqlalchemy.Integer, sqlalchemy.ForeignKey(DbArrayGenotype.id), nullable=False
+    )
+    # brain_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey(DbArrayGenotype.id), nullable=False)
+    # brain_before_geno = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
+    # brain_after_geno = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
+    before_fitness = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    after_fitness = sqlalchemy.Column(sqlalchemy.Float, nullable=True)

@@ -26,10 +26,7 @@ from pyrr import Quaternion, Vector3
 #  Revolve2
 from revolve2.actor_controllers.cpg import CpgNetworkStructure
 from revolve2.core.modular_robot import Body
-from revolve2.core.modular_robot.brains import (
-    BrainCpgNetworkStatic,
-    make_cpg_network_structure_neighbour,
-)
+from revolve2.core.modular_robot.brains import BrainCpgNetworkStatic
 from revolve2.core.optimization import DbId
 from revolve2.core.optimization.ea.openai_es import OpenaiESOptimizer
 from revolve2.core.physics.actor import Actor

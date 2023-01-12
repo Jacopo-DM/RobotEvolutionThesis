@@ -5,8 +5,11 @@ from typing import List, Tuple
 import numpy as np
 import numpy.typing as npt
 from pyrr import Quaternion, Vector3
-from revolve2.actor_controller import ActorController
 from revolve2.actor_controllers.cpg import CpgNetworkStructure
+from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio.session import AsyncSession
+
+from revolve2.actor_controller import ActorController
 from revolve2.core.modular_robot import Body, ModularRobot
 from revolve2.core.modular_robot.brains import (
     BrainCpgNetworkStatic,
@@ -24,8 +27,6 @@ from revolve2.core.physics.running import (
     Runner,
 )
 from revolve2.runners.isaacgym import LocalRunner
-from sqlalchemy.ext.asyncio import AsyncEngine
-from sqlalchemy.ext.asyncio.session import AsyncSession
 
 
 class ESOptimizer(OpenaiESOptimizer):
@@ -44,28 +45,28 @@ class ESOptimizer(OpenaiESOptimizer):
     _num_generations: int
 
     async def ainit_new(
-        # type: ignore # TODO for now ignoring mypy complaint about LSP problem, override parent's ainit
-        self,
-        database: AsyncEngine,
-        session: AsyncSession,
-        process_id: int,
-        process_id_gen: ProcessIdGen,
-        rng: Random,
-        population_size: int,
-        sigma: float,
-        learning_rate: float,
-        robot_body: Body,
-        initial_mean: npt.NDArray[np.float_],
-        simulation_time: int,
-        sampling_frequency: float,
-        control_frequency: float,
-        num_generations: int,
-        cpg_structure: CpgNetworkStructure,
+            # type: ignore # TODO for now ignoring mypy complaint about LSP problem, override parent's ainit
+            self,
+            database: AsyncEngine,
+            session: AsyncSession,
+            process_id: int,
+            process_id_gen: ProcessIdGen,
+            rng: Random,
+            population_size: int,
+            sigma: float,
+            learning_rate: float,
+            robot_body: Body,
+            initial_mean: npt.NDArray[np.float_],
+            simulation_time: int,
+            sampling_frequency: float,
+            control_frequency: float,
+            num_generations: int,
+            cpg_structure: CpgNetworkStructure,
     ) -> None:
         self._actor, self._dof_ids = robot_body.to_actor()
         self._cpg_network_structure = cpg_structure
 
-        self._body = robot_body  # ???
+        self._body = robot_body # ???
 
         # nprng = np.random.Generator(
         #     np.random.PCG64(rng.randint(0, 2**63))
@@ -92,29 +93,29 @@ class ESOptimizer(OpenaiESOptimizer):
         self._num_generations = num_generations
 
     async def ainit_from_database(  # type: ignore # see comment at ainit_new
-        self,
-        database: AsyncEngine,
-        session: AsyncSession,
-        process_id: int,
-        process_id_gen: ProcessIdGen,
-        rng: Random,
-        robot_body: Body,
-        simulation_time: int,
-        sampling_frequency: float,
-        control_frequency: float,
-        num_generations: int,
-        cpg_structure: CpgNetworkStructure,
+            self,
+            database: AsyncEngine,
+            session: AsyncSession,
+            process_id: int,
+            process_id_gen: ProcessIdGen,
+            rng: Random,
+            robot_body: Body,
+            simulation_time: int,
+            sampling_frequency: float,
+            control_frequency: float,
+            num_generations: int,
+            cpg_structure: CpgNetworkStructure,
     ) -> bool:
         if not await super().ainit_from_database(
-            database=database,
-            session=session,
-            process_id=process_id,
-            process_id_gen=process_id_gen,
-            rng=rng,
+                database=database,
+                session=session,
+                process_id=process_id,
+                process_id_gen=process_id_gen,
+                rng=rng,
         ):
             return False
 
-        self._body = robot_body  # ???
+        self._body = robot_body # ???
         self._actor, self._dof_ids = robot_body.to_actor()
         self._cpg_network_structure = cpg_structure
 
@@ -131,11 +132,11 @@ class ESOptimizer(OpenaiESOptimizer):
         self._runner = LocalRunner(LocalRunner.SimParams(), headless=True)
 
     async def _evaluate_population(
-        self,
-        database: AsyncEngine,
-        process_id: int,
-        process_id_gen: ProcessIdGen,
-        population: npt.NDArray[np.float_],
+            self,
+            database: AsyncEngine,
+            process_id: int,
+            process_id_gen: ProcessIdGen,
+            population: npt.NDArray[np.float_],
     ) -> npt.NDArray[np.float_]:
         batch = Batch(
             simulation_time=self._simulation_time,
@@ -150,9 +151,7 @@ class ESOptimizer(OpenaiESOptimizer):
             initial_state = self._cpg_network_structure.make_uniform_state(
                 0.5 * math.pi / 2.0
             )
-            weight_matrix = self._cpg_network_structure.make_weight_matrix_from_params(
-                params
-            )
+            weight_matrix = self._cpg_network_structure.make_weight_matrix_from_params(params)
             dof_ranges = self._cpg_network_structure.make_uniform_dof_ranges(1.0)
             brain = BrainCpgNetworkStatic(
                 initial_state,

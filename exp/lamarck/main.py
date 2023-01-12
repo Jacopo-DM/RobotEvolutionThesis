@@ -17,37 +17,14 @@ This code is provided "As Is"
 - python extra/calculators.py estimator NUM_OF_GEN SEC_PER_GEN: estimate the time to run the evolutionary optimizer 
 
 
-Hey JLO, 
-
-Happy new year!
-I hope you are doing well, have had a good holiday and have a pleasant return to work.
-
-Here is the first repo from a series I will be sending you in the coming days:
-
-It contains the rewriteen lamarckian code, which I realized needed several iterations to get right.
-I've worked a **lot** on the code, and I think it's in a good state to be shared with you.
-After hitting my head against Revolve 2, I started from scratch and made a general interface and workflow (to match Revolve's general structure),
-this made it easier to made it easier to conduct understand what is happening and conducting experiments, I hope you find it intuitive.
-
-On the note of experiments, I have tried running the lamarckian optimizer, but during the "large loop", for the fitness, I returned
-the "learning delta" rather then the "directed locomotion after learning", the fitness for the learning loop stayed the same; 
-the results are very intersting, the robots achieve better fitness overall using the learning delta for directed locomotion (!) using the learning fitness to compare (I need to run both versions for longer to be sure).
-If this is accurate it means that we can use the learning delta as a general purpose fitness function for morphologies, and only implement a "real" fitness function in the learning loop.
-"Let the learning drive the evolution; from the body comes the mind vs from the mind comes the body" is a very interesting idea, and I think it's worth exploring.
-How many (generations * pop_size) or evaluation loops do you think is sufficent to prove this hypothesis? I used 100 * 50.
-(find this experiment here: )
-
-Also, I still need to convince myself that what is happening here is Lamarckism, and not just controller optimization; could you help me out with that?
-
-Anyways, back to the repos I will be sending you in the coming days (in order):
-- Morphologies
-- RevDev
-- BO
-
-They are strucutred identically to this one, they just have slightly different content.
-On top of it, I have created a repository for all my work (including LaTeX files), which you can find at: 
-
-I've also written minimal documentation, and I will be happy to answer any questions you might have.
+The code, in general has the following structure:
+optimize_robot:
+    init_robot_population
+    for generation in num_gen:
+        start_fitness = evaluate(population)
+        learning_period.run(population)
+        end_fitness = evaluate(population)
+        return end_fitness 
 """
 
 # Standard libraries
@@ -172,9 +149,10 @@ if __name__ == "__main__":
     # Setup logging and check install
     setup()
 
-    import os
+    # remove ./extra/database
+    import shutil
 
-    os.system("rm -rf ./extra/database")
+    shutil.rmtree("./extra/database", ignore_errors=True)
 
     # Run the main program
     import asyncio
