@@ -13,11 +13,10 @@ This will download all the submodules as well; such as [`revolve2`](https://gith
 ```
 .
 ├── README.md                         # This document
-├── basics                            # See ./basics/README for more information (detached)
-│   ├── README.md 
+├── basics                            # Read `./basics` section of this README for more information
+│   ├── README.md                     # Even more information
 │   └── ...                           # (other files)
-├── charts                            # See ./charts/README for more information
-│   ├── README.md 
+├── charts                            # Read `./charts` section of this README for more information
 │   └── ...                           # (other files)
 ├── exp                               # Experiments with Revolve 2
 │   ├── bo                            # (Uncommited)
@@ -26,7 +25,6 @@ This will download all the submodules as well; such as [`revolve2`](https://gith
 │   ├── revdev                        # (Uncommited)
 │   └── tutorial                      # Various tutorials for Revolve 2 (with graphics)
 ├── revolve                           # JMDM version of Revolve 2 (submodule)
-│   ├── README.md
 │   └── ...                           # (other files) 
 └── thesis                            # Files for the thesis
     ├── bibs                          # Bibliography files
