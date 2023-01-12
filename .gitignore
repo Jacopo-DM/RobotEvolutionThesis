@@ -1,5 +1,9 @@
 # Environment
 .vscode
+.mypy_cache
+__pycache__
+*.pyc
+*.sqlite
 
 # Mac OS
 .DS_Store
@@ -10,12 +14,7 @@ NOTES.md
 # Unlinked repos 
 ludobots
 
-# Duplicate `examples` folder
-tutorial/examples
-
 # Temporary exclude
-tutorial
-lamarck
 morphologies
 revdev
 bo
